@@ -1,0 +1,54 @@
+
+<div class="block-1">
+  <h4>Number of current directives active:</h4>
+  <p>Directives added: {{added}}</p>
+  <p>Directives removed: {{removed}}</p>
+  <p>Total active: {{added - removed}}</p>
+</div>
+
+<div class="block-2">
+  <div class="block-3">
+    <dx-tree-list
+      dataStructure="plain"
+      keyExpr="id"
+      parentIdExpr="parentId"
+      [dataSource]="datasource"
+      [rootValue]="-1"
+      [autoExpandAll]="true"
+      [repaintChangesOnly]="true"
+      [showColumnHeaders]="false"
+    >
+  
+      <dxi-column dataField="text" cellTemplate="itemTemplate"></dxi-column>
+      <div *dxTemplate="let item of 'itemTemplate'" class="node">
+        <i class="icon ion-md-flash"></i>
+        <span class="text" appDummy>Custom template: {{item.text}}</span>
+      </div>
+  
+      <dxo-scrolling mode="virtual"></dxo-scrolling>
+      <dxo-selection mode="single"></dxo-selection>
+    </dx-tree-list>
+  </div>
+  
+  <div class="block-4">
+    <h4>Main issue</h4>
+    <p>If a node gets removed, the <a href="https://angular.io/api/core/ViewContainerRef">ViewContainerRef</a> for that node is not cleared.</p>
+    <p>This causes all of the existing directives/components to not be disposed (the <a href="https://angular.io/api/core/OnDestroy">ngOnDestroy</a> life-cycle hook will never be called).</p>
+    <p>And if a node gets added back into the view, it will not use the existing directive/component but insted create a new one.</p>
+    <p>From what I can see, the ngOnInit function gets called on collapse and expand, but ngOnDestroy is only called on collapse.</p>
+    
+    <br>
+
+    <h4>How to reproduce:</h4>
+    <ul>
+      <li>You can expand/collapse any of the nodes and see that the "Total active" counter increases.</li>
+      <li>If you scoll using the scrollbar (or fast enough with the scrollwheel) new nodes will be added and removed, but not the directives.</li>
+    </ul>
+
+    <br>
+
+    <h4>Solution to problem:</h4>
+    <p>The <a href="https://angular.io/api/core/ViewContainerRef">viewContainerRef's</a> method <a href="https://angular.io/api/core/ViewContainerRef#clear">clear()</a> or <a href="https://angular.io/api/core/ViewContainerRef#detach">detach()</a> should be called before any nodes can be removed.</p>
+    <p>If implemented in a correct way, the "Total active" counter should stay the same.</p>
+  </div>
+</div>
