@@ -1,4 +1,4 @@
-# DxTreeView - Many nodes demo
+# DxTreeList - Angular custom cell template
 
 This is a demo application of Devextreme TreeList component with a custom cellTemplate containing an Angular directive. 
 
